@@ -1,4 +1,5 @@
 import { Table } from 'react-bootstrap';
+import ReactPaginate from 'react-paginate';
 import styles from './TableUsers.module.scss';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
@@ -8,20 +9,26 @@ const cx = classNames.bind(styles);
 
 const TableUsers = () => {
     const [listUsers, setListUsers] = useState([]);
+    const [totalUsers, setTotalUsers] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
-        getUsers();
+        getUsers(1);
     }, []);
 
-    const getUsers = async () => {
-        let res = await fetchALlUsers();
+    const getUsers = async (page) => {
+        let res = await fetchALlUsers(page);
 
         if (res && res.data) {
+            setTotalUsers(res.total);
             setListUsers(res.data);
+            setTotalPages(res.total_pages);
         }
     };
 
-    console.log(listUsers);
+    const handlePageClick = (event) => {
+        getUsers(+event.selected + 1);
+    };
 
     return (
         <div className={cx('container')}>
@@ -49,6 +56,27 @@ const TableUsers = () => {
                         })}
                 </tbody>
             </Table>
+            <ReactPaginate
+                nextLabel="next >"
+                onPageChange={handlePageClick}
+                pageRangeDisplayed={3}
+                marginPagesDisplayed={2}
+                pageCount={totalPages}
+                previousLabel="< previous"
+                pageClassName="page-item"
+                pageLinkClassName="page-link"
+                previousClassName="page-item"
+                previousLinkClassName="page-link"
+                nextClassName="page-item"
+                nextLinkClassName="page-link"
+                breakLabel="..."
+                breakClassName="page-item"
+                breakLinkClassName="page-link"
+                containerClassName="pagination"
+                activeClassName="active"
+                renderOnZeroPageCount={null}
+            />
+            <h1>{totalUsers}</h1>
         </div>
     );
 };
